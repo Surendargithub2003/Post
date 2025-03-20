@@ -1,0 +1,26 @@
+mat-toolbar
+{
+    background-color:rgb(69, 71, 235);
+    color: white;
+}
+
+a
+{
+    text-decoration: none;
+    color: white;
+}
+
+ul{
+    list-style: none;
+    padding : 0;
+    margin : 0;
+}
+
+.spacer{
+    flex :1 1 auto
+}
+
+.p{
+    background-color: rgb(255, 255, 255);
+    color: black;
+}
