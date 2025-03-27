@@ -1,67 +1,76 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators} from '@angular/forms';
-import { PostsService } from '../post.service';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { PostsService } from '../post.service.js';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { Post } from '../post.model';
-import { mimeType } from './mime-type.validator';
+import { Post } from '../post.model.js';
+import { mimeType } from './mime-type.validator.js';
 
 @Component({
   selector: 'app-post-create',
   standalone: false,
   templateUrl: './post-create.component.html',
-  styleUrl: './post-create.component.css'
+  styleUrl: './post-create.component.css',
 })
-
-
-export class PostCreateComponent implements OnInit{
-  
+export class PostCreateComponent implements OnInit {
   public mode = 'create';
-  imagePreview : string ='';
-  public postId : string | null = "";
-  post : Post = {id : "" , title : "", content:"" , imagePath : ""}
+  imagePreview: string = '';
+  public postId: string | null = '';
+  post: Post = { id: '', title: '', content: '', imagePath: '' };
+  selectedFile: File | null = null;
   form!: FormGroup;
   isLoading = false;
-  
-  constructor ( public postsService : PostsService , public route : ActivatedRoute  ){}
-  
+
+  constructor(
+    public postsService: PostsService,
+    public route: ActivatedRoute
+  ) {}
+
   ngOnInit() {
     this.form = new FormGroup({
-      title: new FormControl(null , {validators : [Validators.required, Validators.minLength(3)]}),
-      content: new FormControl(null , {validators : [Validators.required]}),
-      image : new FormControl(null, {
-        validators : [Validators.required],
-        asyncValidators : [mimeType]  
-      })
+      title: new FormControl(null, {
+        validators: [Validators.required, Validators.minLength(3)],
+      }),
+      content: new FormControl(null, { validators: [Validators.required] }),
+      image: new FormControl(null, {
+        validators: [Validators.required],
+        asyncValidators: [mimeType],
+      }),
     });
-    this.route.paramMap.subscribe((paramMap : ParamMap)=>{
-        if(paramMap.has('postId')){
-          this.mode = 'edit';
-          this.postId = paramMap.get('postId');
-          this.isLoading = true;
-          this.postsService.getPost(this.postId ?? '').subscribe(postData =>{
-            this.isLoading = false;
-            this.post = {id : postData._id , title : postData.title , content : postData.content, imagePath : postData.imagePath}
-          });
-          this.form.setValue({
-            title: this.post.title , 
-            content:this.post.content,
+    this.route.paramMap.subscribe((paramMap: ParamMap) => {
+      if (paramMap.has('postId')) {
+        this.mode = 'edit';
+        this.postId = paramMap.get('postId');
+        this.isLoading = true;
+        this.postsService.getPost(this.postId ?? '').subscribe((postData) => {
+          this.isLoading = false;
+          this.post = {
+            id: postData._id,
+            title: postData.title,
+            content: postData.content,
+            imagePath: postData.imagePath,
+          };
+          this.form.patchValue({
+            title: this.post.title,
+            content: this.post.content,
             image: this.post.imagePath
-          })
-        }
-        else{
-          this.mode = 'create'
-          this.postId = null ;
-        } 
+          });
+          this.imagePreview = this.post.imagePath;
+          this.form.get('image')?.clearValidators();
+          this.form.get('image')?.updateValueAndValidity();
+        });
+      } else {
+        this.mode = 'create';
+        this.postId = null;
+      }
     });
   }
-  
+
+
   onImagePicked(event: Event) {
     const file = (event.target as HTMLInputElement)?.files?.[0];
     if (!file) return;
-
     this.form.patchValue({ image: file });
-    this.form.get('image')?.updateValueAndValidity();
-
+    this.form.get("image")?.updateValueAndValidity();
     const reader = new FileReader();
     reader.onload = () => {
       this.imagePreview = reader.result as string;
@@ -69,23 +78,30 @@ export class PostCreateComponent implements OnInit{
     reader.readAsDataURL(file);
   }
 
-  onSavePost(){
-    if(this.form.invalid){
+  onSavePost() {
+    if (this.form.invalid) {
+      console.log("Form is invalid!", this.form.value);
       return;
     }
+  
     this.isLoading = true;
-    if(this.mode ==='create'){
-      this.postsService.addPost(this.form.value.title, this.form.value.content, this.form.value.image);
-    }
-    else{
+    if (this.mode === 'create') {
+      console.log("Creating Post: ", this.form.value);
+      this.postsService.addPost(
+        this.form.value.title, 
+        this.form.value.content, 
+        this.form.value.image
+      );
+    } else {
+      console.log("Updating Post: ", this.form.value);
       this.postsService.updatePost(
         this.postId ?? '',
         this.form.value.title,
         this.form.value.content,
         this.form.value.image
-      )
+      );
     }
-      this.form.reset();
+    this.form.reset();
   }
- 
+  
 }
