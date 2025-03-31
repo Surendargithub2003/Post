@@ -3,6 +3,7 @@ import { Post } from "../post.model.js";
 import { PostsService } from "../post.service.js";
 import { Subscription } from "rxjs";
 import { PageEvent } from "@angular/material/paginator";
+import { AuthService } from "../../auth/auth.service.js";
 
 @Component({
     selector : 'app-post-list',
@@ -23,21 +24,32 @@ export class PostListComponent implements OnInit , OnDestroy {
   totalPosts = 10;
   currentPage = 1;
   postPerPage = 2;
-  pageSizeOptions = [1 ,2 ,5 , 10
-
-  ];
+  pageSizeOptions = [1 ,2 ,5 , 10];
+  userIsAuthenticated = false;
+  userId : string = '';
   private postsSub !: Subscription;
+  private authStatusSub : Subscription | undefined;
 
-   constructor(public postsService : PostsService) {}
+   constructor(public postsService : PostsService , private authService : AuthService) {
+    console.log('PostListComponent constructor called');
+   }
 
    ngOnInit() {
     this.isLoading = true;
-       this.postsService.getPosts(this.postPerPage,1);
+    console.log("ok")
+       this.postsService.getPosts(this.postPerPage,this.currentPage);
+       this.userId = this.authService.getUserId() as string;
        this.postsSub = this.postsService.getPostUpdateListener().subscribe((postData : {posts : Post[],postCount : number})=>{
         this.isLoading = false;
         this.totalPosts = postData.postCount;
         this.posts = postData.posts;
        });
+       this.userIsAuthenticated = this.authService.getIsAuth();
+       this.authStatusSub =  this.authService.getAuthStatusListener().subscribe(isAutenticated =>
+       {
+            this.userIsAuthenticated = isAutenticated;
+       }
+       )
    }
 
    onChangedPage(pageData : PageEvent){
@@ -51,11 +63,14 @@ export class PostListComponent implements OnInit , OnDestroy {
     this.isLoading = true;
         this.postsService.deletePost(postId).subscribe(()=>{
             this.postsService.getPosts(this.postPerPage,this.currentPage);
+        }, () => {
+            this.isLoading = false;
         });
    }
 
    ngOnDestroy() {
         this.postsSub.unsubscribe();
+        this.authStatusSub?.unsubscribe();
 }
 }
 

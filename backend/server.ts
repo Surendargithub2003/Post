@@ -1,6 +1,7 @@
 import http from 'http';
 import debug from 'debug';
-import app from './backend/app.js'; 
+import app from './app.js'; 
+
 
 const normalizePort = (val: any) => {
     const port = parseInt(val, 10);

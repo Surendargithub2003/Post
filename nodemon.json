@@ -1,0 +1,9 @@
+{
+    "env" : {
+        "MONGO_ATLAS_PW" :"123",
+        "JWT_KEY" : "secret_this_should_be_longer"
+    },
+      "exec": "node --loader ts-node/esm server.ts",
+  "ext": "js,ts,json"
+    
+}

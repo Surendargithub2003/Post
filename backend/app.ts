@@ -10,8 +10,9 @@ import userRoutes from './routes/user.js'
 const app = express();
 
 
+const secretKey = process.env['MONGO_ATLAS_PW'];
 
-mongoose.connect("mongodb+srv://admin:123@cluster0.wdvb3.mongodb.net/node-angular?retryWrites=true&w=majority&appName=Cluster0")
+mongoose.connect("mongodb+srv://admin:"+secretKey+"@cluster0.wdvb3.mongodb.net/node-angular?retryWrites=true&w=majority&appName=Cluster0")
     .then(()=> {
         console.log("Connected to database!");
     })

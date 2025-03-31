@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { PostsService } from '../post.service.js';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Post } from '../post.model.js';
 import { mimeType } from './mime-type.validator.js';
+import { Subscription } from 'rxjs';
+import { AuthService } from '../../auth/auth.service.js';
 
 @Component({
   selector: 'app-post-create',
@@ -11,21 +13,28 @@ import { mimeType } from './mime-type.validator.js';
   templateUrl: './post-create.component.html',
   styleUrl: './post-create.component.css',
 })
-export class PostCreateComponent implements OnInit {
+export class PostCreateComponent implements OnInit , OnDestroy{
   public mode = 'create';
   imagePreview: string = '';
   public postId: string | null = '';
-  post: Post = { id: '', title: '', content: '', imagePath: '' };
+  post: Post = { id: '', title: '', content: '', imagePath: '' , creator : ""};
   selectedFile: File | null = null;
   form!: FormGroup;
   isLoading = false;
+  private authStatusSub : Subscription | undefined;
 
   constructor(
     public postsService: PostsService,
-    public route: ActivatedRoute
+    public route: ActivatedRoute,
+    private authService : AuthService
   ) {}
 
   ngOnInit() {
+    this.authStatusSub =  this.authService.getAuthStatusListener().subscribe(
+      authSatus =>{
+        this.isLoading = false;
+      }
+    );
     this.form = new FormGroup({
       title: new FormControl(null, {
         validators: [Validators.required, Validators.minLength(3)],
@@ -48,6 +57,7 @@ export class PostCreateComponent implements OnInit {
             title: postData.title,
             content: postData.content,
             imagePath: postData.imagePath,
+            creator: postData.creator
           };
           this.form.patchValue({
             title: this.post.title,
@@ -103,5 +113,7 @@ export class PostCreateComponent implements OnInit {
     }
     this.form.reset();
   }
-  
+  ngOnDestroy(){
+    this.authStatusSub?.unsubscribe();
+  }
 }
