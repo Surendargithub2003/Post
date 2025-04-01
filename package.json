@@ -2,15 +2,17 @@
   "name": "my-app",
   "version": "0.0.0",
   "type": "module",
-  "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "serve:ssr:my-app": "node dist/my-app/server/server.mjs",
-    "start:server": "nodemon --exec 'node --loader ts-node/esm' server.ts"
-  },
+"scripts": {
+  "ng": "ng",
+  "start": "ng serve",
+  "build": "ng build",
+  "watch": "ng build --watch --configuration development",
+  "test": "ng test",
+  "build:ssr": "ng run my-app:server",
+  "serve:ssr": "node dist/my-app/server/main.js",  
+  "start:server": "nodemon --exec 'node --loader ts-node/esm' server.ts" 
+},
+
   "private": true,
   "dependencies": {
     "@angular/animations": "^19.2.1",
