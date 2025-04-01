@@ -4,13 +4,14 @@
   "type": "module",
 "scripts": {
   "ng": "ng",
-  "start": "ng serve",
+  "start": "concurrently \"npm run start:angular\" \"npm run start:server\"",
+  "start:angular": "ng serve",
   "build": "ng build",
   "watch": "ng build --watch --configuration development",
   "test": "ng test",
   "build:ssr": "ng run my-app:server",
   "serve:ssr": "node dist/my-app/server/main.js",  
-  "start:server": "nodemon --exec 'node --loader ts-node/esm' server.ts" 
+  "start:server": "nodemon --exec 'node --loader ts-node/esm' server.ts"
 },
 
   "private": true,
