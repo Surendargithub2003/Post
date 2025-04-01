@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "type": "module",
   "private": true,
+"scripts": {
+  
+},
   "dependencies": {
     "@types/multer": "^1.4.12",
     "bcrypt": "^5.1.1",
