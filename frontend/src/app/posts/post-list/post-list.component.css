@@ -1,0 +1,119 @@
+mat-spinner{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 60px;
+  }
+  
+  .post-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 32px 16px;
+  }
+  
+  .post-card {
+    margin-top: 10px;
+    margin-bottom: 30px;
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+  }
+  
+  .post-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  }
+  
+  .post-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .post-icon {
+    font-size: 22px;
+  }
+  
+  .post-image-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  
+  .post-img {
+    max-height: 300px;
+    width: 100%;
+    border-radius: 12px;
+    object-fit: contain;
+  }
+  
+  .post-content {
+    font-size: 1rem;
+    color: #444;
+    line-height: 1.6;
+    margin-top: 12px;
+  }
+  
+  .card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 12px 16px 16px;
+  }
+  
+  .card-actions button mat-icon {
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  
+  .no-posts-message {
+    text-align: center;
+    font-size: 1.2rem;
+    margin-top: 48px;
+    color: #888;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .no-posts-icon {
+    font-size: 48px;
+    color: #c1c1c1;
+  }
+  
+  .user-greeting-container {
+    display: flex;
+    justify-content: flex-start;
+    padding: 16px 0;
+  }
+  
+  .user-greeting-card {
+    display: flex;
+    align-items: center;
+    background-color: #f5f7fa;
+    padding: 12px 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .user-icon {
+    font-size: 36px;
+    margin-right: 12px;
+  }
+  
+  .user-text .greeting {
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .user-text .email {
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+  }
+  

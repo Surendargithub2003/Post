@@ -1,0 +1,39 @@
+<mat-toolbar class="mat-toolbar">
+    <span class="logo">
+      <a routerLink="/" class="title-link">
+        <mat-icon class="icon">mail</mat-icon>
+        My Messages
+      </a>
+    </span>
+  
+    <span class="spacer"></span>
+  
+    <div class="toolbar-buttons">
+      <ng-container *ngIf="userIsAutenticated; else guestLinks">
+        <a mat-flat-button color="primary" routerLink="/create">
+          <mat-icon class="icon">edit</mat-icon>
+          Create Post
+        </a>
+        <a mat-flat-button color="warn" (click)="onLogout()">
+          <mat-icon class="icon">logout</mat-icon>
+          Logout
+        </a>
+      </ng-container>
+  
+      <ng-template #guestLinks>
+        <a mat-flat-button color="primary" routerLink="/auth/login">
+          <mat-icon class="icon">login</mat-icon>
+          Login
+        </a>
+        <a mat-flat-button color="accent" routerLink="/auth/signup">
+          <mat-icon class="icon">person_add</mat-icon>
+          Sign Up
+        </a>
+      </ng-template>
+      <a mat-flat-button color="primary" routerLink="/my-posts">
+        <mat-icon class="icon">person</mat-icon>
+        My Posts
+      </a>
+    </div>
+  </mat-toolbar>
+  

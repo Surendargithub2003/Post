@@ -1,0 +1,20 @@
+
+FROM node:latest AS backend-build
+WORKDIR /usr/src/backend
+COPY backend/ .
+RUN npm install
+RUN ls
+
+
+FROM node:latest
+WORKDIR /root/backend
+
+
+COPY --from=backend-build /usr/src/backend .
+
+
+RUN npm install  
+
+EXPOSE 3000
+CMD ["npm", "run", "start:server"]
+

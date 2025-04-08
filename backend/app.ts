@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+dotenv.config();
 import path from 'path';
 import express from 'express';
 import { Request, Response, NextFunction } from 'express';
@@ -7,10 +9,12 @@ import cors from 'cors';
 import Post from './models/post.js';
 import postsRoutes from './routes/posts.js';
 import userRoutes from './routes/user.js';
+
+
 const app = express();
 
-const secretKey = process.env['MONGO_ATLAS_PW'];
-
+const secretKey = process.env.MONGO_ATLAS_PW;
+console.log(secretKey)
 mongoose
   .connect(
     'mongodb+srv://admin:' +
@@ -27,7 +31,7 @@ mongoose
 app.use(bodyParser.json());
 
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use('/images', express.static(path.join('backend/images')));
+app.use('/images', express.static(path.join('images')));
 
 app.use(cors());
 

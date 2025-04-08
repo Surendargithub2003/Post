@@ -1,0 +1,40 @@
+<!-- Loading Spinner -->
+<mat-spinner *ngIf="isLoading" diameter="50" class="spinner-center"></mat-spinner>
+
+<!-- Posts Section -->
+<div *ngIf="posts.length > 0 && !isLoading" class="post-container">
+  <mat-card *ngFor="let post of posts" class="post-card">
+    
+    <mat-card-header>
+      <mat-card-title class="post-title">
+        <mat-icon class="post-icon" color="primary">article</mat-icon>
+        {{ post.title }}
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="post-image-container" *ngIf="post.imagePath">
+        <img mat-card-image [src]="post.imagePath" [alt]="post.title" class="post-img" />
+      </div>
+      <p class="post-content">{{ post.content }}</p>
+    </mat-card-content>
+
+    <mat-card-actions *ngIf="userIsAuthenticated && userId === post.creator" class="card-actions">
+      <button mat-flat-button color="primary" [routerLink]="['/edit', post.id]">
+        <mat-icon>edit</mat-icon>
+        Edit
+      </button>
+      <button mat-flat-button color="warn" (click)="onDelete(post.id)">
+        <mat-icon>delete</mat-icon>
+        Delete
+      </button>
+    </mat-card-actions>
+    
+  </mat-card>
+</div>
+
+<!-- No Posts Message -->
+<div *ngIf="posts.length <= 0 && !isLoading" class="no-posts-message">
+  <mat-icon color="accent" class="no-posts-icon">mail_outline</mat-icon>
+  <p>No posts created by you yet.</p>
+</div>

@@ -1,0 +1,51 @@
+/* Toolbar Container */
+.mat-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1976d2; 
+  color: white;
+  padding: 0 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.title-link {
+  font-size: 1.6rem;
+  text-decoration: none;
+  color: white;
+}
+
+/* Fills space between logo and buttons */
+.spacer {
+  flex: 1 1 auto;
+}
+
+/* Button Container */
+.toolbar-buttons a {
+  margin-left: 12px;
+  text-transform: capitalize;
+}
+
+@media (max-width: 600px) {
+  .mat-toolbar {
+    flex-direction: column;
+    align-items: center; 
+  }
+
+  .toolbar-buttons {
+    padding: 30px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: row; 
+    flex-wrap: wrap;     
+    justify-content: center;
+    gap: 0px;
+    width: 100%;
+  }
+
+  .toolbar-buttons a {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+}
