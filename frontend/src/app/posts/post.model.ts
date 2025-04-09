@@ -1,6 +1,8 @@
 export interface Comment {
-  text: string;
-  timestamp: Date;
+  _id?: string;
+  content: string;
+  creator?: { _id: string; email: string };
+  createdAt?: Date;
 }
 
 export interface Post {
@@ -9,9 +11,6 @@ export interface Post {
   content: string;
   imagePath: string;
   creator: string;
-
-
-  comments?: Comment[];       
-  showComments?: boolean;     
-  newComment?: string;       
+  comments: Comment[]; 
+  showComments?: boolean; 
 }

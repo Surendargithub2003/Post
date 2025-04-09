@@ -1,19 +1,15 @@
-
 import { Request, Response, NextFunction } from "express";
 import Post from '../models/post.js';
 
-// Custom request type to include userData (from auth middleware)
-interface AuthenticatedRequest extends Request {
+export interface AuthenticatedRequest extends Request {
   userData?: {
     userId: string;
   };
 }
 
-// Custom response type to include imageUrl in res.locals
-interface ImageLocals {
+export interface ImageLocals {
   imageUrl?: string;
 }
-
 const createPost = (req: AuthenticatedRequest, res: Response<any, ImageLocals>, next: NextFunction) => {
   console.log("User Data:", req.userData);
   console.log("Title:", req.body.title);
@@ -82,7 +78,7 @@ const getPosts = async (req: Request, res: Response, next: NextFunction) => {
     const pageSize = Number(req.query.pagesize) || 0;
     const currentPage = Number(req.query.page) || 1;
 
-    const postQuery = Post.find();
+    const postQuery = Post.find().populate('comments.creator', 'email'); 
     if (pageSize && currentPage) {
       postQuery.skip(pageSize * (currentPage - 1)).limit(pageSize);
     }
@@ -104,7 +100,7 @@ const getPosts = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const getPost = (req: Request, res: Response, next: NextFunction) => {
-  Post.findById(req.params.id).then((post) => {
+  Post.findById(req.params.id).populate('comments.creator', 'email').then((post) => { 
     if (post) {
       res.status(200).json(post);
     } else {
@@ -127,61 +123,46 @@ const deletePost = (req: AuthenticatedRequest, res: Response, next: NextFunction
   });
 };
 
-const comments = async (req :Request, res : Response) => {
-  const postId = req.params.id;
-  const { text, timestamp } = req.body;
-
-  if (!text || !timestamp) {
-    return res.status(400).json({ message: 'Text and timestamp are required' });
-  }
-
-  try {
-    const post = await Post.findById(postId);
-    if (!post) {
-      return res.status(404).json({ message: 'Post not found' });
-    }
-
-    const newComment = { text, timestamp };
-    post.comments.push(newComment);
-
-    await post.save();
-    res.status(200).json({
-      message: 'Comment added successfully',
-      comment: newComment,
-      postId: post._id
+const addComment = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  Post.findByIdAndUpdate(
+    req.params.id,
+    { $push: { comments: { content: req.body.content, creator: req.userData?.userId } } },
+    { new: true }
+  ).populate('comments.creator', 'email') 
+    .then(post => {
+      if (post) {
+        res.status(201).json({ message: 'Comment added!', post: post });
+      } else {
+        res.status(404).json({ message: 'Post not found!' });
+      }
+    })
+    .catch(error => {
+      res.status(500).json({ message: 'Adding comment failed!', error: error.message });
     });
-  } catch (error) {
-    console.error('Error saving comment:', error);
-    res.status(500).json({ message: 'Error adding comment', error });
-  }
 };
 
-const deleteComment = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  const { postId, commentId } = req.params;
-
-  try {
-    const post = await Post.findById(postId);
-
-    if (!post) {
-      return res.status(404).json({ message: 'Post not found' });
-    }
-
-    // Remove the comment from the comments array
-    const commentIndex = post.comments.findIndex((comment: any) => comment._id.toString() === commentId);
-
-    if (commentIndex === -1) {
-      return res.status(404).json({ message: 'Comment not found' });
-    }
-
-    post.comments.splice(commentIndex, 1);
-    await post.save();
-
-    res.status(200).json({ message: 'Comment deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting comment:', error);
-    res.status(500).json({ message: 'Error deleting comment' });
-  }
+const deleteComment = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  Post.findByIdAndUpdate(
+    req.params.postId,
+    { $pull: { comments: { _id: req.params.commentId, creator: req.userData?.userId } } },
+    { new: true }
+  ).populate('comments.creator', 'email') 
+    .then(post => {
+      if (post) {
+        const commentRemoved = post.comments.some(comment => comment._id?.toString() === req.params.commentId);
+        if (!commentRemoved) {
+          return res.status(200).json({ message: 'Comment deleted!', post: post });
+        } else {
+          return res.status(403).json({ message: 'Not authorized to delete this comment!' });
+        }
+      } else {
+        res.status(404).json({ message: 'Post not found!' });
+      }
+    })
+    .catch(error => {
+      res.status(500).json({ message: 'Deleting comment failed!', error: error.message });
+    });
 };
 
 
-export default { createPost, updatePost, getPosts, getPost, deletePost , comments , deleteComment};
+export default { createPost, updatePost, getPosts, getPost, deletePost, addComment, deleteComment };

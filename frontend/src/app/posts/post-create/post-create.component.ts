@@ -17,7 +17,7 @@ export class PostCreateComponent implements OnInit , OnDestroy{
   public mode = 'create';
   imagePreview: string = '';
   public postId: string | null = '';
-  post: Post = { id: '', title: '', content: '', imagePath: '' , creator : ""};
+  post: Post = { id: '', title: '', content: '', imagePath: '' , creator : "" , comments : []};
   selectedFile: File | null = null;
   form!: FormGroup;
   isLoading = false;
@@ -57,14 +57,15 @@ export class PostCreateComponent implements OnInit , OnDestroy{
             title: postData.title,
             content: postData.content,
             imagePath: postData.imagePath,
-            creator: postData.creator
+            creator: postData.creator,
+            comments : []
           };
           this.form.patchValue({
             title: this.post.title,
             content: this.post.content,
             image: this.post.imagePath
           });
-          this.imagePreview = this.post.imagePath;
+          this.imagePreview = this.post.imagePath?? '';
           this.form.get('image')?.clearValidators();
           this.form.get('image')?.updateValueAndValidity();
         });

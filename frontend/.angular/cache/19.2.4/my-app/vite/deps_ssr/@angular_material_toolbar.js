@@ -3,11 +3,11 @@ import "./chunk-ISHWXNCR.js";
 import "./chunk-LUIGAJD2.js";
 import {
   MatCommonModule
-} from "./chunk-QIE754HA.js";
+} from "./chunk-4XPMKUR3.js";
+import "./chunk-O4QKDVV7.js";
 import {
   Platform
 } from "./chunk-WQTUHRQZ.js";
-import "./chunk-O4QKDVV7.js";
 import {
   DOCUMENT
 } from "./chunk-3DLGHKM2.js";

@@ -1,7 +1,9 @@
-<mat-spinner *ngIf="isLoading" diameter="50"></mat-spinner>
+
+<mat-spinner *ngIf="isLoading" diameter="50" class="spinner-center"></mat-spinner>
 
 <div *ngIf="posts.length > 0 && !isLoading" class="post-container">
   <mat-card *ngFor="let post of posts" class="post-card">
+
     <mat-card-header>
       <mat-card-title class="post-title">
         <mat-icon class="post-icon" color="primary">article</mat-icon>
@@ -14,43 +16,79 @@
         <img mat-card-image [src]="post.imagePath" [alt]="post.title" class="post-img" />
       </div>
       <p class="post-content">{{ post.content }}</p>
+    </mat-card-content>
 
-      <div class="comments-wrapper">
-        <button mat-button (click)="toggleComments(post)">
-          <mat-icon>comment</mat-icon>
-          {{ post.showComments ? 'Hide' : 'Show' }} Comments ({{ post.comments?.length || 0 }})
+    <mat-card-actions class="card-actions">
+      <button mat-icon-button color="accent" (click)="onToggleComments(post)">
+        <mat-icon>comment</mat-icon>
+      </button>
+      <span class="comment-count">{{ post.comments.length }}</span>
+      <span class="spacer"></span>
+
+      <ng-container *ngIf="userIsAuthenticated && userId === post.creator">
+        <button mat-flat-button color="primary" [routerLink]="['/edit', post.id]">
+          <mat-icon>edit</mat-icon>
+          Edit
         </button>
+        <button mat-flat-button color="warn" (click)="onDelete(post.id)">
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+      </ng-container>
+    </mat-card-actions>
 
-        <div *ngIf="post.showComments" class="comments-section">
-          <div *ngFor="let comment of post.comments; let i = index" class="comment">
-            <mat-icon class="comment-user-icon" color="accent">person</mat-icon>
-            <span class="comment-text">{{ comment.text }}</span>
 
-            <button mat-icon-button color="warn" *ngIf="userIsAuthenticated && userId === post.creator" (click)="openDeleteCommentDialog(post.id, i)">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </div>
+    <mat-card-content *ngIf="post.showComments">
 
-          <mat-form-field appearance="outline" class="comment-input">
-            <input matInput placeholder="Write a comment..." [(ngModel)]="post.newComment">
-          </mat-form-field>
+      <mat-form-field class="comment-form">
+        <textarea
+          matInput
+          placeholder="Add a comment"
+          [formControl]="commentControls[post.id]">
+        </textarea>
+        <mat-error *ngIf="commentControls[post.id]?.invalid && (commentControls[post.id]?.dirty || commentControls[post.id]?.touched)">
+          Please enter a comment.
+        </mat-error>
+      </mat-form-field>
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="onAddComment(post.id)"
+        [disabled]="commentControls[post.id].invalid">
+        Add Comment
+      </button>
 
-          <button mat-raised-button color="primary" (click)="addComment(post)">Post</button>
-        </div>
+      <div class="comments-section" *ngIf="post.comments.length > 0">
+        <mat-divider></mat-divider>
+        <h3 class="comments-title">Comments</h3>
+        <mat-list>
+          <mat-list-item *ngFor="let comment of post.comments">
+            <p>
+              <span class="comment-text">
+                <strong>{{ comment.creator?.email || 'Unknown User' }}</strong>: {{ comment.content }}
+              </span>
+              <span class="comment-meta">
+                <span class="comment-date" *ngIf="comment.createdAt">
+                  ({{ comment.createdAt | date:'medium' }})
+                </span>
+                <button
+                  mat-icon-button
+                  color="warn"
+                  *ngIf="userIsAuthenticated && userId === comment.creator?._id"
+                  (click)="onDeleteComment(post.id, comment._id!)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </span>
+            </p>
+          </mat-list-item>
+        </mat-list>
+      </div>
+
+      <div class="no-comments-message" *ngIf="post.showComments && post.comments.length === 0">
+        <p>No comments yet. Be the first to comment!</p>
       </div>
     </mat-card-content>
 
-
-    <mat-card-actions *ngIf="userIsAuthenticated && userId === post.creator" class="card-actions">
-      <button mat-flat-button color="primary" [routerLink]="['/edit', post.id]">
-        <mat-icon>edit</mat-icon>
-        Edit
-      </button>
-      <button mat-flat-button color="warn" (click)="openDeletePostDialog(post.id)">
-        <mat-icon>delete</mat-icon>
-        Delete Post
-      </button>
-    </mat-card-actions>
   </mat-card>
 </div>
 
@@ -66,26 +104,3 @@
   <mat-icon color="accent" class="no-posts-icon">mail_outline</mat-icon>
   <p>No posts yet. Be the first to share your story!</p>
 </div>
-
-<ng-template #confirmDeletePostDialog>
-  <h2 mat-dialog-title>Delete Post Confirmation</h2>
-  <mat-dialog-content>
-    <p>Are you sure you want to delete this post? This action cannot be undone.</p>
-  </mat-dialog-content>
-  <mat-dialog-actions>
-    <button mat-button (click)="cancelDeleteDialog()">Cancel</button>
-    <button mat-raised-button color="warn" (click)="confirmDeletePost()">Delete</button>
-  </mat-dialog-actions>
-</ng-template>
-
-
-<ng-template #confirmDeleteCommentDialog>
-  <h2 mat-dialog-title>Delete Comment Confirmation</h2>
-  <mat-dialog-content>
-    <p>Are you sure you want to delete this comment? This action cannot be undone.</p>
-  </mat-dialog-content>
-  <mat-dialog-actions>
-    <button mat-button (click)="cancelDeleteDialog()">Cancel</button>
-    <button mat-raised-button color="warn" (click)="confirmDeleteComment()">Delete</button>
-  </mat-dialog-actions>
-</ng-template>

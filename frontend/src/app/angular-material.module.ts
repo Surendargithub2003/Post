@@ -10,6 +10,7 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {MatIconModule} from '@angular/material/icon'
 import {MatDividerModule} from '@angular/material/divider'
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import {MatListModule} from '@angular/material/list'
 @NgModule({
     imports : [ MatInputModule,
         MatCardModule,
@@ -21,7 +22,8 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
         MatDialogModule,
         MatDividerModule,
         MatIconModule,
-        FormsModule],
+        FormsModule,
+        MatListModule],
     exports : [
             MatInputModule,
         MatCardModule,
@@ -33,7 +35,8 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
         MatDialogModule,
         MatIconModule,
         MatDividerModule,
-        FormsModule
+        FormsModule,
+        MatListModule
         ]
 })
 export class AngularMaterialModule {}
