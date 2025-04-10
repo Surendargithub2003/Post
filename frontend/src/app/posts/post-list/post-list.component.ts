@@ -22,6 +22,8 @@ export class PostListComponent implements OnInit , OnDestroy {
     pageSizeOptions = [1 ,2 ,5 , 10];
     userIsAuthenticated = false;
     userId : string = '';
+    likedPostIds: Set<string> = new Set<string>();
+
     private postsSub !: Subscription;
     private authStatusSub : Subscription | undefined;
     commentControls: { [postId: string]: FormControl } = {};
@@ -41,6 +43,9 @@ export class PostListComponent implements OnInit , OnDestroy {
         this.posts = postData.posts;
         this.posts.forEach(post => {
           this.commentControls[post.id] = new FormControl('', Validators.required);
+          if (post.likes === undefined) {
+            post.likes = 0;
+          }
         });
        });
        this.userIsAuthenticated = this.authService.getIsAuth();
@@ -75,7 +80,7 @@ export class PostListComponent implements OnInit , OnDestroy {
     if (this.commentControls[postId].valid) {
       this.isLoading = true;
       this.postsService.addComment(postId, this.commentControls[postId].value).subscribe(() => {
-        this.postsService.getPosts(this.postPerPage, this.currentPage); // Refresh posts to see new comment
+        this.postsService.getPosts(this.postPerPage, this.currentPage); 
         this.commentControls[postId].reset();
       }, () => {
         this.isLoading = false;
@@ -86,12 +91,25 @@ export class PostListComponent implements OnInit , OnDestroy {
    onDeleteComment(postId: string, commentId: string) {
     this.isLoading = true;
     this.postsService.deleteComment(postId, commentId).subscribe(() => {
-      this.postsService.getPosts(this.postPerPage, this.currentPage); // Refresh posts
+      this.postsService.getPosts(this.postPerPage, this.currentPage); 
     }, () => {
       this.isLoading = false;
     });
    }
-
+   hasUserLiked(post: Post): boolean {
+    return !!post.likedBy?.includes(this.userId);
+  }
+  
+  onLikePost(postId: string) {
+    this.postsService.likePost(postId).subscribe((response) => {
+      const updatedPost = this.posts.find(post => post.id === postId);
+      if (updatedPost) {
+        updatedPost.likes = response.likes;
+        updatedPost.likedBy = response.likedBy;
+      }
+    });
+  }
+  
    ngOnDestroy() {
         this.postsSub.unsubscribe();
         this.authStatusSub?.unsubscribe();

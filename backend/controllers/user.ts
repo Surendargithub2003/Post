@@ -5,30 +5,38 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 
-const createUser = (req: Request, res: Response, next: NextFunction) => {
-  bcrypt.hash(req.body.password, 10).then((hash) => {
+const createUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
     const user = new User({
       email: req.body.email,
-      password: hash,
+      password: hashedPassword,
     });
-    user
-      .save()
-      .then((result) => {
-        res.status(201).json({
-          message: 'User Created!',
-          result: result,
-        });
-      })
-      .catch((err) => {
-        res.status(500).json({
-          error: {
-            message: "Invalid authentication creadentials!"
-          },
-        });
-      });
-  });
-};
 
+    const result = await user.save();
+
+    res.status(201).json({
+      message: 'User Created!',
+      result,
+    });
+  } catch (err: any) {
+    if (err.code === 11000) {
+      return res.status(409).json({ // Add the return statement here
+        error: {
+          message: 'User with this email already exists!',
+        },
+      });
+    }
+
+    res.status(500).json({
+      error: {
+        message: 'An unknown error occurred!',
+        details: err.message,
+      },
+    });
+  }
+};
 const userLogin = (req: Request, res: Response, next: NextFunction) => {
   let fetchedUser: any;
 

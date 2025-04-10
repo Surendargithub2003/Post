@@ -31,4 +31,7 @@ router.post("/:id/comments", checkAuth, PostConroller.addComment);
 
 router.delete("/:postId/comments/:commentId", checkAuth, PostConroller.deleteComment);
 
+router.put('/like/:id', checkAuth, PostConroller.likePost);
+
+
 export default router;

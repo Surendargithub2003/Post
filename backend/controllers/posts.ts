@@ -164,5 +164,38 @@ const deleteComment = (req: AuthenticatedRequest, res: Response, next: NextFunct
     });
 };
 
+const likePost = async (req :any, res : Response) => {
+  try {
+    const postId = req.params.id;
+    const userId = req.userData.userId;
 
-export default { createPost, updatePost, getPosts, getPost, deletePost, addComment, deleteComment };
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    const hasLiked = post.likedBy.includes(userId);
+
+    if (hasLiked) {
+      post.likedBy = post.likedBy.filter(id => id.toString() !== userId);
+    } else {
+      post.likedBy.push(userId);
+    }
+
+    post.likes = post.likedBy.length;
+
+    await post.save();
+
+    res.status(200).json({
+      message: hasLiked ? "Post unliked" : "Post liked",
+      likes: post.likes,
+      likedBy: post.likedBy,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Liking/unliking post failed", error });
+  }
+};
+
+
+export default { createPost, updatePost, getPosts, getPost, deletePost, addComment, deleteComment , likePost};

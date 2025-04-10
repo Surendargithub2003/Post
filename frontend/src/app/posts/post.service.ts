@@ -30,6 +30,8 @@ export class PostsService {
                 imagePath: post.imagePath,
                 creator: post.creator,
                 comments: post.comments || [],
+                likes : post.likes,
+                likedBy : post.likedBy,
                 showComments: false,
               };
             }),
@@ -39,7 +41,7 @@ export class PostsService {
       )
       .subscribe((transformedPostData) => {
         console.log(transformedPostData);
-        this.posts = transformedPostData.posts;
+        this.posts = transformedPostData.posts.reverse();
         this.postsUpdated.next({ posts: [...this.posts], postCount: transformedPostData.maxPosts });
       });
   }
@@ -55,7 +57,7 @@ export class PostsService {
       content: string;
       imagePath: string;
       creator: string;
-      comments: any[]; // Adjust type if needed
+      comments: any[]; 
     }>(BACKEND_URL + id);
   }
 
@@ -109,7 +111,8 @@ export class PostsService {
         content: content,
         imagePath: image,
         creator: '',
-        comments: [] // Initialize comments here if needed for PUT request
+        comments: [], 
+        likes : 0
       };
     }
     this.http.put(BACKEND_URL + id, postData)
@@ -128,5 +131,11 @@ export class PostsService {
 
   deleteComment(postId: string, commentId: string): Observable<{ message: string; post: Post }> {
     return this.http.delete<{ message: string; post: Post }>(`${BACKEND_URL}${postId}/comments/${commentId}`);
+  }
+  likePost(postId: string) {
+    return this.http.put<{ message: string; likes: number; likedBy: string[] }>(
+      BACKEND_URL + 'like/' + postId,
+      {}
+    );
   }
 }

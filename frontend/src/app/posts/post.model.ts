@@ -12,5 +12,7 @@ export interface Post {
   imagePath: string;
   creator: string;
   comments: Comment[]; 
-  showComments?: boolean; 
+  showComments?: boolean;
+  likes?: number; // ✅ Number of likes on the post
+  likedBy?: string[]; // ✅ List of user IDs who liked the post
 }

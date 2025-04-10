@@ -1,4 +1,3 @@
-
 <mat-spinner *ngIf="isLoading" diameter="50" class="spinner-center"></mat-spinner>
 
 <div *ngIf="posts.length > 0 && !isLoading" class="post-container">
@@ -19,11 +18,22 @@
     </mat-card-content>
 
     <mat-card-actions class="card-actions">
+
+      <button mat-icon-button (click)="onLikePost(post.id)">
+        <mat-icon [style.color]="hasUserLiked(post) ? 'red' : undefined">
+          {{ hasUserLiked(post) ? 'favorite' : 'favorite_border' }}
+        </mat-icon>
+      </button>
+      <span class="like-count">{{ post.likes }}</span>
+
+
       <button mat-icon-button color="accent" (click)="onToggleComments(post)">
         <mat-icon>comment</mat-icon>
       </button>
       <span class="comment-count">{{ post.comments.length }}</span>
+
       <span class="spacer"></span>
+
 
       <ng-container *ngIf="userIsAuthenticated && userId === post.creator">
         <button mat-flat-button color="primary" [routerLink]="['/edit', post.id]">
@@ -39,24 +49,6 @@
 
 
     <mat-card-content *ngIf="post.showComments">
-
-      <mat-form-field class="comment-form">
-        <textarea
-          matInput
-          placeholder="Add a comment"
-          [formControl]="commentControls[post.id]">
-        </textarea>
-        <mat-error *ngIf="commentControls[post.id]?.invalid && (commentControls[post.id]?.dirty || commentControls[post.id]?.touched)">
-          Please enter a comment.
-        </mat-error>
-      </mat-form-field>
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="onAddComment(post.id)"
-        [disabled]="commentControls[post.id].invalid">
-        Add Comment
-      </button>
 
       <div class="comments-section" *ngIf="post.comments.length > 0">
         <mat-divider></mat-divider>
@@ -83,6 +75,24 @@
           </mat-list-item>
         </mat-list>
       </div>
+      <mat-form-field class="comment-form">
+        <textarea
+          matInput
+          placeholder="Add a comment"
+          [formControl]="commentControls[post.id]">
+        </textarea>
+        <mat-error *ngIf="commentControls[post.id]?.invalid && (commentControls[post.id]?.dirty || commentControls[post.id]?.touched)">
+          Please enter a comment.
+        </mat-error>
+      </mat-form-field>
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="onAddComment(post.id)"
+        [disabled]="commentControls[post.id].invalid">
+        Add Comment
+      </button>
+
 
       <div class="no-comments-message" *ngIf="post.showComments && post.comments.length === 0">
         <p>No comments yet. Be the first to comment!</p>
@@ -99,6 +109,7 @@
   [pageSizeOptions]="pageSizeOptions"
   (page)="onChangedPage($event)">
 </mat-paginator>
+
 
 <div *ngIf="posts.length <= 0 && !isLoading" class="no-posts-message">
   <mat-icon color="accent" class="no-posts-icon">mail_outline</mat-icon>
