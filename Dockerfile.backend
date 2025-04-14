@@ -1,20 +1,21 @@
+# Stage 1: Build dependencies
+FROM node:18-alpine AS backend-build
+WORKDIR /app
+COPY backend/package*.json ./
+RUN npm ci
 
-FROM node:latest AS backend-build
-WORKDIR /usr/src/backend
+# Copy rest of the backend files
 COPY backend/ .
-RUN npm install
-RUN ls
 
+# Stage 2: Run in lightweight container
+FROM node:18-alpine
+WORKDIR /app
 
-FROM node:latest
-WORKDIR /root/backend
+# Copy built app from previous stage
+COPY --from=backend-build /app .
 
-
-COPY --from=backend-build /usr/src/backend .
-
-
-RUN npm install  
+# Reuse already installed node_modules
+COPY --from=backend-build /app/node_modules ./node_modules
 
 EXPOSE 3000
 CMD ["npm", "run", "start:server"]
-

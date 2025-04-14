@@ -1,10 +1,11 @@
 import { createRequire } from 'module';const require = createRequire(import.meta.url);
+import "./chunk-HJTKKQ3X.js";
 import {
   BidiModule,
   DIR_DOCUMENT,
   Dir,
   Directionality
-} from "./chunk-O4QKDVV7.js";
+} from "./chunk-U34XVKUL.js";
 import "./chunk-3DLGHKM2.js";
 import "./chunk-NUVWF767.js";
 import "./chunk-ZUJ64LXG.js";

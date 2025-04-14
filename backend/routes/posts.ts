@@ -13,13 +13,7 @@ router.post(
   PostConroller.createPost
 );
 
-router.put(
-  "/:id",
-  checkAuth,
-  image.uploadSingleImage,
-  image.uploadToS3,
-  PostConroller.updatePost
-);
+router.put("/:id",checkAuth,PostConroller.updatePost);
 
 router.get('', PostConroller.getPosts);
 

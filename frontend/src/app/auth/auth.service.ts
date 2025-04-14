@@ -5,6 +5,8 @@ import { Subject } from "rxjs";
 import { Router } from "@angular/router";
 import { isPlatformBrowser } from "@angular/common";
 import { environment } from '../../environments/environment.js';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
 
 const BACKEND_URL = environment.apiUrl + '/user/';
 
@@ -20,7 +22,8 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
-    @Inject(PLATFORM_ID) private platformId: object
+    @Inject(PLATFORM_ID) private platformId: object,
+    private snackBar: MatSnackBar
   ) {}
 
   getToken() {
@@ -118,22 +121,33 @@ export class AuthService {
   }
   
 
-  logout() {
+  logout(message?: string) {
     this.token = "";
     this.isAuthenticated = false;
     this.authStatusListener.next(false);
     this.userId = "";
+    
     if (isPlatformBrowser(this.platformId)) {
       this.clearAuthData();
     }
+  
     clearTimeout(this.tokenTimer);
     this.router.navigate(["/"]);
+  
+    if (message) {
+      this.snackBar.open(message, "Close", {
+        duration: 5000,
+        horizontalPosition: "center",
+        verticalPosition: "top",
+      });
+    }
   }
+  
 
   private setAuthTimer(duration: number) {
     console.log("Setting timer for:", duration);
     this.tokenTimer = setTimeout(() => {
-      this.logout();
+      this.logout("Session expired. Please login again to continue.");
     }, duration * 1000);
   }
 

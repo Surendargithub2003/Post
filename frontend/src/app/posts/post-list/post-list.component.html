@@ -2,7 +2,6 @@
 
 <div *ngIf="posts.length > 0 && !isLoading" class="post-container">
   <mat-card *ngFor="let post of posts" class="post-card">
-
     <mat-card-header>
       <mat-card-title class="post-title">
         <mat-icon class="post-icon" color="primary">article</mat-icon>
@@ -18,23 +17,40 @@
     </mat-card-content>
 
     <mat-card-actions class="card-actions">
-
+      <!-- Like Button -->
       <button mat-icon-button (click)="onLikePost(post.id)">
         <mat-icon [style.color]="hasUserLiked(post) ? 'red' : undefined">
           {{ hasUserLiked(post) ? 'favorite' : 'favorite_border' }}
         </mat-icon>
       </button>
-      <span class="like-count">{{ post.likes }}</span>
 
+      <!-- Like Count & Liked By -->
+      <div class="like-details">
+        <span class="like-count">{{ post.likes }}</span>
+        <mat-menu #likesMenu="matMenu">
+          <div *ngIf="post.likedBy && post.likedBy.length > 0" class="likers-list">
+            <h4 mat-menu-item>Liked By:</h4>
+            <button mat-menu-item *ngFor="let liker of post.likedBy">
+              {{ getLikerEmail(liker) || 'Unknown User' }}
+            </button>
+          </div>
+          <div *ngIf="!post.likedBy || post.likedBy.length === 0" mat-menu-item>
+            No likes yet.
+          </div>
+        </mat-menu>
+        <button mat-button [matMenuTriggerFor]="likesMenu" *ngIf="post.likedBy && post.likedBy.length > 0">
+          <mat-icon>people</mat-icon>
+        </button>
+      </div>
 
+      <!-- Toggle Comments -->
       <button mat-icon-button color="accent" (click)="onToggleComments(post)">
         <mat-icon>comment</mat-icon>
       </button>
       <span class="comment-count">{{ post.comments.length }}</span>
 
+      <!-- Edit/Delete Buttons (only for creator) -->
       <span class="spacer"></span>
-
-
       <ng-container *ngIf="userIsAuthenticated && userId === post.creator">
         <button mat-flat-button color="primary" [routerLink]="['/edit', post.id]">
           <mat-icon>edit</mat-icon>
@@ -47,9 +63,8 @@
       </ng-container>
     </mat-card-actions>
 
-
+    <!-- Comments Section -->
     <mat-card-content *ngIf="post.showComments">
-
       <div class="comments-section" *ngIf="post.comments.length > 0">
         <mat-divider></mat-divider>
         <h3 class="comments-title">Comments</h3>
@@ -75,7 +90,12 @@
           </mat-list-item>
         </mat-list>
       </div>
+
+      <!-- Add Comment -->
       <mat-form-field class="comment-form">
+        <div class="no-comments-message" *ngIf="post.showComments && post.comments.length === 0">
+          <p>No comments yet. Be the first to comment!</p>
+        </div>
         <textarea
           matInput
           placeholder="Add a comment"
@@ -92,16 +112,11 @@
         [disabled]="commentControls[post.id].invalid">
         Add Comment
       </button>
-
-
-      <div class="no-comments-message" *ngIf="post.showComments && post.comments.length === 0">
-        <p>No comments yet. Be the first to comment!</p>
-      </div>
     </mat-card-content>
-
   </mat-card>
 </div>
 
+<!-- Paginator -->
 <mat-paginator
   *ngIf="posts.length > 0 && !isLoading"
   [length]="totalPosts"
@@ -110,7 +125,7 @@
   (page)="onChangedPage($event)">
 </mat-paginator>
 
-
+<!-- Fallback: No posts -->
 <div *ngIf="posts.length <= 0 && !isLoading" class="no-posts-message">
   <mat-icon color="accent" class="no-posts-icon">mail_outline</mat-icon>
   <p>No posts yet. Be the first to share your story!</p>

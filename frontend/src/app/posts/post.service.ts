@@ -1,127 +1,90 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { environment } from '../../environments/environment.js';
-import { Post } from './post.model.js';
+import { environment } from '../../environments/environment';
+import { Post } from './post.model';
+import { UserLike } from './post.model'; 
 
 const BACKEND_URL = environment.apiUrl + '/posts/';
 
 @Injectable({ providedIn: 'root' })
 export class PostsService {
   private posts: Post[] = [];
-  private postsUpdated = new Subject<{ posts: Post[], postCount: number }>();
+  private postsUpdated = new Subject<{ posts: Post[]; postCount: number }>();
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  getPosts(postPerPage: number, currentPage: number) {
+  getPosts(postPerPage: number, currentPage: number): Observable<{ posts: Post[]; postCount: number }> {
     const queryParams = `?pagesize=${postPerPage}&page=${currentPage}`;
-    this.http
-      .get<{ message: string; posts: any, maxPosts: number }>(BACKEND_URL + queryParams)
+    return this.http
+      .get<{ message: string; posts: any[]; maxPosts: number }>(BACKEND_URL + queryParams)
       .pipe(
         map((postData) => {
           return {
-            posts: postData.posts.map((post: any) => {
-              return {
-                title: post.title,
-                content: post.content,
-                id: post._id,
-                imagePath: post.imagePath,
-                creator: post.creator,
-                comments: post.comments || [],
-                likes : post.likes,
-                likedBy : post.likedBy,
-                showComments: false,
-              };
-            }),
-            maxPosts: postData.maxPosts,
+            posts: postData.posts.map((post: any) => ({
+              title: post.title,
+              content: post.content,
+              id: post._id,
+              imagePath: post.imagePath,
+              creator: post.creator,
+              comments: post.comments || [],
+              likes: post.likes,
+              likedBy: post.likedBy,
+              showComments: false,
+            }) as Post), 
+            postCount: postData.maxPosts, 
           };
+        }),
+        tap((transformedPostData) => {
+          console.log(transformedPostData);
+          this.posts = transformedPostData.posts.reverse();
+          this.postsUpdated.next({ posts: [...this.posts], postCount: transformedPostData.postCount }); // Use postCount from transformed data
         })
-      )
-      .subscribe((transformedPostData) => {
-        console.log(transformedPostData);
-        this.posts = transformedPostData.posts.reverse();
-        this.postsUpdated.next({ posts: [...this.posts], postCount: transformedPostData.maxPosts });
-      });
+      );
   }
 
-  getPostUpdateListener() {
+  getPostUpdateListener(): Observable<{ posts: Post[]; postCount: number }> {
     return this.postsUpdated.asObservable();
   }
 
-  getPost(id: string) {
+  getPost(id: string): Observable<{
+    _id: string;
+    title: string;
+    content: string;
+    imagePath: string;
+    creator: string;
+    comments: any[];
+    likes: number;
+    likedBy: string[] | UserLike[];
+  }> {
     return this.http.get<{
       _id: string;
       title: string;
       content: string;
       imagePath: string;
       creator: string;
-      comments: any[]; 
+      comments: any[];
+      likes: number;
+      likedBy: string[] | UserLike[];
     }>(BACKEND_URL + id);
   }
-
-  addPost(title: string, content: string, image: File) {
-    console.log('Title:', title);
-    console.log('Content:', content);
-    console.log('Image:', image);
-
-    if (!image) {
-      console.error('No image');
-      return;
-    }
-
-    const postData = new FormData();
-    postData.append('title', title || '');
-    postData.append('content', content || '');
-    postData.append('image', image, title);
-
-    console.log('Logging FormData Contents:');
-    for (let pair of postData.entries()) {
-      console.log(`${pair[0]}:`, pair[1]);
-    }
-
-    console.log('Sending POST request:', postData);
-
+  addPost(postData: FormData): void {
     this.http.post<{ message: string; post: Post }>(BACKEND_URL, postData)
-      .subscribe({
-        next: (responseData) => {
-          this.router.navigate(['/']);
-        },
-        error: (err) => {
-          console.error('Error: HTTP Request Failed:', err);
-        }
-      });
-  }
-
-  updatePost(id: string, title: string, content: string, image: File | string) {
-    let postData: Post | FormData;
-    let imagePath: string;
-
-    if (typeof image === 'object') {
-      postData = new FormData();
-      postData.append('id', id);
-      postData.append('title', title);
-      postData.append('content', content);
-      postData.append('image', image, title);
-    } else {
-      postData = {
-        id: id,
-        title: title,
-        content: content,
-        imagePath: image,
-        creator: '',
-        comments: [], 
-        likes : 0
-      };
-    }
-    this.http.put(BACKEND_URL + id, postData)
-      .subscribe((responseData: any) => {
+      .subscribe(() => {
         this.router.navigate(['/']);
       });
   }
+  
+  updatePost(id: string, postData: FormData): void {
+    this.http.put(BACKEND_URL + id, postData).subscribe(() => {
+      this.router.navigate(['/']);
+    });
+  }
 
-  deletePost(postId: string) {
+
+  deletePost(postId: string): Observable<any> {
     return this.http.delete(BACKEND_URL + postId);
   }
 
@@ -132,8 +95,9 @@ export class PostsService {
   deleteComment(postId: string, commentId: string): Observable<{ message: string; post: Post }> {
     return this.http.delete<{ message: string; post: Post }>(`${BACKEND_URL}${postId}/comments/${commentId}`);
   }
-  likePost(postId: string) {
-    return this.http.put<{ message: string; likes: number; likedBy: string[] }>(
+
+  likePost(postId: string): Observable<{ message: string; likes: number; likedBy: string[] | UserLike[] }> {
+    return this.http.put<{ message: string; likes: number; likedBy: string[] | UserLike[] }>(
       BACKEND_URL + 'like/' + postId,
       {}
     );

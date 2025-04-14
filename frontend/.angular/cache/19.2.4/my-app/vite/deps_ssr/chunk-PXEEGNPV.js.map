@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../node_modules/@angular/cdk/fesm2022/scrolling.mjs"],
+  "sourcesContent": ["export { c as CdkFixedSizeVirtualScroll, b as CdkScrollable, C as CdkScrollableModule, e as CdkVirtualForOf, g as CdkVirtualScrollViewport, i as CdkVirtualScrollable, j as CdkVirtualScrollableElement, k as CdkVirtualScrollableWindow, d as DEFAULT_RESIZE_TIME, D as DEFAULT_SCROLL_TIME, F as FixedSizeVirtualScrollStrategy, S as ScrollDispatcher, a as ScrollingModule, h as VIRTUAL_SCROLLABLE, f as VIRTUAL_SCROLL_STRATEGY, V as ViewportRuler, _ as _fixedSizeVirtualScrollStrategyFactory } from './scrolling-module-dbd83632.mjs';\nimport '@angular/core';\nimport 'rxjs';\nimport 'rxjs/operators';\nimport './element-705567fe.mjs';\nimport './platform-610a08ae.mjs';\nimport '@angular/common';\nimport './directionality-0a678adc.mjs';\nimport './scrolling-61955dd1.mjs';\nimport './recycle-view-repeater-strategy-c1712813.mjs';\nimport './data-source-5320b6fd.mjs';\nimport './bidi-module-56dd006c.mjs';\n"],
+  "mappings": ";;;;;;;;;;;;AAEA,kBAAO;AACP,uBAAO;",
+  "names": []
+}

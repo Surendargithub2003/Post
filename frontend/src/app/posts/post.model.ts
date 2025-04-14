@@ -5,14 +5,19 @@ export interface Comment {
   createdAt?: Date;
 }
 
+export interface UserLike {
+  _id: string;
+  email: string;
+}
+
 export interface Post {
   id: string;
   title: string;
   content: string;
   imagePath: string;
   creator: string;
-  comments: Comment[]; 
+  comments: Comment[];
   showComments?: boolean;
-  likes?: number; // ✅ Number of likes on the post
-  likedBy?: string[]; // ✅ List of user IDs who liked the post
+  likes?: number;
+  likedBy?: (string | UserLike)[]; 
 }
